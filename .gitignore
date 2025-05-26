@@ -93,3 +93,6 @@ tests/windows
 # Hazel-specific
 bin
 bin-int
+
+# wayland-generated files
+src/wayland-*.h
