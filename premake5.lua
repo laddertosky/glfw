@@ -6,6 +6,15 @@ warnings("off")
 
 targetdir("bin/" .. Outputdir .. "/%{prj.name}")
 objdir("bin-int/" .. Outputdir .. "/%{prj.name}")
+newoption({
+	trigger = "display-protocol",
+	description = "Use X11 for the display server protocol by default, or Wayland if specified. Only works on linux.",
+	default = "x11",
+	allowed = {
+		{ "x11", "X11" },
+		{ "wl", "Wayland" },
+	},
+})
 
 files({
 	"include/GLFW/glfw3.h",
@@ -27,15 +36,32 @@ files({
 })
 
 filter("system:linux")
-pic("On")
-
 systemversion("latest")
+pic("On")
+files({
+	"src/xkb_unicode.c",
+	"src/posix_module.c",
+	"src/posix_time.c",
+	"src/posix_thread.c",
+	"src/posix_module.c",
+	"src/glx_context.c",
+	"src/egl_context.c",
+	"src/osmesa_context.c",
+	"src/linux_joystick.c",
+})
 
+filter({ "system:linux", "options:display-protocol=x11" })
 files({
 	"src/x11_init.c",
 	"src/x11_monitor.c",
 	"src/x11_window.c",
+})
+defines({
+	"_GLFW_X11",
+})
 
+filter({ "system:linux", "options:display-protocol=wl" })
+files({
 	"src/wl_init.c",
 	"src/wl_monitor.c",
 	"src/wl_window.c",
@@ -53,23 +79,7 @@ files({
 	"src/wayland-pointer-constraints-unstable-v1-client-protocol-code.h",
 	"src/wayland-idle-inhibit-unstable-v1-client-protocol.h",
 	"src/wayland-idle-inhibit-unstable-v1-client-protocol-code.h",
-
-	"src/xkb_unicode.c",
-	"src/posix_module.c",
-	"src/posix_time.c",
-	"src/posix_thread.c",
-	"src/posix_module.c",
-	"src/glx_context.c",
-	"src/egl_context.c",
-	"src/osmesa_context.c",
-	"src/linux_joystick.c",
 })
-
-defines({
-	"_GLFW_X11",
-	"_GLFW_WAYLAND",
-})
-
 prebuildcommands({
 	"wayland-scanner client-header /usr/share/wayland/wayland.xml src/wayland-client-protocol.h",
 	"wayland-scanner private-code /usr/share/wayland/wayland.xml src/wayland-client-protocol-code.h",
@@ -85,6 +95,10 @@ prebuildcommands({
 	"wayland-scanner private-code /usr/share/wayland-protocols/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml src/wayland-pointer-constraints-unstable-v1-client-protocol-code.h",
 	"wayland-scanner client-header /usr/share/wayland-protocols/unstable/idle-inhibit/idle-inhibit-unstable-v1.xml src/wayland-idle-inhibit-unstable-v1-client-protocol.h",
 	"wayland-scanner private-code /usr/share/wayland-protocols/unstable/idle-inhibit/idle-inhibit-unstable-v1.xml src/wayland-idle-inhibit-unstable-v1-client-protocol-code.h",
+})
+
+defines({
+	"_GLFW_WAYLAND",
 })
 
 filter("system:macosx")
