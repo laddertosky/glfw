@@ -4,8 +4,8 @@ language("C")
 staticruntime("off")
 warnings("off")
 
-targetdir("bin/" .. outputdir .. "/%{prj.name}")
-objdir("bin-int/" .. outputdir .. "/%{prj.name}")
+targetdir("bin/" .. Outputdir .. "/%{prj.name}")
+objdir("bin-int/" .. Outputdir .. "/%{prj.name}")
 
 files({
 	"include/GLFW/glfw3.h",
